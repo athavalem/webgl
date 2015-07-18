@@ -48,7 +48,7 @@ window.onload = function init() {
     document.getElementById("blue").value = 0;
     document.getElementById("green").value = 0;
     document.getElementById("rand").checked = false;
-    document.getElementById("subdivisions").value = 0;
+    document.getElementById("subdivisions").value = 1;
     document.getElementById("rotation").value = 0;
 
     document.forms[0].radio1[0].checked = true;
