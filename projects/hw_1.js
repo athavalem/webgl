@@ -6,12 +6,12 @@ var gl;
 var points = [];
 
 var colors = [];
- var baseColors = [
-        vec3(255.0, 0.0, 0.0),
-        vec3(0.0, 255.0, 0.0),
-        vec3(0.0, 0.0, 255.0)
-       
-    ];
+var baseColors = [
+    vec3(255.0, 0.0, 0.0),
+    vec3(0.0, 255.0, 0.0),
+    vec3(0.0, 0.0, 255.0)
+
+];
 var theta = 0;
 var thetaLoc;
 var NumTimesToSubdivide = 1;
@@ -34,6 +34,8 @@ function changeBorderFill() {
 
 }
 
+
+
 window.onload = function init() {
     canvas = document.getElementById("gl-canvas");
 
@@ -42,50 +44,92 @@ window.onload = function init() {
         alert("WebGL isn't available");
     }
 
+    document.getElementById("red").value = 0;
+    document.getElementById("blue").value = 0;
+    document.getElementById("green").value = 0;
+    document.getElementById("rand").checked = false;
+    document.getElementById("subdivisions").value = 0;
+    document.getElementById("rotation").value = 0;
 
-
-     document.getElementById("red").onchange = function() {
-        red = event.srcElement.value;
-        generatePoints();
-
-        render();
-    };
+    document.forms[0].radio1[0].checked = true;
     
-      document.getElementById("green").onchange = function() {
-        green = event.srcElement.value;
-        generatePoints();
+    document.getElementById("red").onchange = function(event) {
+        // the following few lines in this function and similar functions in this file are taken from the 
+        //coursera discussion forum for this course.
+        // Without these lines code will not work on firefox.
+        var targ;
+        if (event.target) targ = event.target;
+        else if (event.srcElement) targ = event.srcElement;
+        if (targ.nodeType == 3) // defeat Safari bug 
+            targ = targ.parentNode;
+        red = targ.value;
 
-        render();
-    };
-    
-    document.getElementById("blue").onchange = function() {
-        blue = event.srcElement.value;
-        generatePoints();
-
-        render();
-    };
-
-     document.getElementById("rand").onchange = function() {
-         if( event.srcElement.checked ){
-             rand = 'YES';
-         }
-         else{
-             rand = 'NO';
-         }
-         
-        generatePoints();
-
-        render();
-    };
-    document.getElementById("subdivisions").onchange = function() {
-        NumTimesToSubdivide = event.srcElement.value;
         generatePoints();
 
         render();
     };
 
-    document.getElementById("rotation").onchange = function() {
-        theta = event.srcElement.value;
+    document.getElementById("green").onchange = function(event) {
+        var targ;
+        if (event.target) targ = event.target;
+        else if (event.srcElement) targ = event.srcElement;
+        if (targ.nodeType == 3) // defeat Safari bug 
+            targ = targ.parentNode;
+        green = targ.value;
+        generatePoints();
+
+        render();
+    };
+
+    document.getElementById("blue").onchange = function(event) {
+        var targ;
+        if (event.target) targ = event.target;
+        else if (event.srcElement) targ = event.srcElement;
+        if (targ.nodeType == 3) // defeat Safari bug 
+            targ = targ.parentNode;
+        blue = targ.value;
+        generatePoints();
+
+        render();
+    };
+
+    document.getElementById("rand").onchange = function(event) {
+        var targ;
+        if (event.target) targ = event.target;
+        else if (event.srcElement) targ = event.srcElement;
+        if (targ.nodeType == 3) // defeat Safari bug 
+            targ = targ.parentNode;
+
+        if (targ.checked) {
+            rand = 'YES';
+        } else {
+            rand = 'NO';
+        }
+
+        generatePoints();
+
+        render();
+    };
+    document.getElementById("subdivisions").onchange = function(event) {
+        var targ;
+        if (event.target) targ = event.target;
+        else if (event.srcElement) targ = event.srcElement;
+        if (targ.nodeType == 3) // defeat Safari bug 
+            targ = targ.parentNode;
+        NumTimesToSubdivide = targ.value;
+        generatePoints();
+
+        render();
+    };
+
+    document.getElementById("rotation").onchange = function(event) {
+        var targ;
+        if (event.target) targ = event.target;
+        else if (event.srcElement) targ = event.srcElement;
+        if (targ.nodeType == 3) // defeat Safari bug 
+            targ = targ.parentNode;
+        theta = targ.value;
+
         theta = (theta * Math.PI / 180) / 1;
         generatePoints();
 
@@ -93,7 +137,7 @@ window.onload = function init() {
     };
 
     //
-    gl.viewport(0, 0, canvas.width , canvas.height );
+    gl.viewport(0, 0, canvas.width, canvas.height);
     //  gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
 
     //  Load shaders and initialize attribute buffers
@@ -101,22 +145,22 @@ window.onload = function init() {
     program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
 
-    
-//    
-//    // Load the data into the GPU
-//
-//    var bufferId = gl.createBuffer();
-//    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
-//
-//
-//    // Associate out shader variables with our data buffer
-//
-//    var vPosition = gl.getAttribLocation(program, "vPosition");
-//    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
-//    gl.enableVertexAttribArray(vPosition);
-    
-    
-  
+
+    //    
+    //    // Load the data into the GPU
+    //
+    //    var bufferId = gl.createBuffer();
+    //    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
+    //
+    //
+    //    // Associate out shader variables with our data buffer
+    //
+    //    var vPosition = gl.getAttribLocation(program, "vPosition");
+    //    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+    //    gl.enableVertexAttribArray(vPosition);
+
+
+
 
     generatePoints();
 
@@ -136,7 +180,7 @@ function generatePoints() {
     divideTriangle(vertices[0], vertices[1], vertices[2],
         NumTimesToSubdivide);
     modifyPoints(points);
-  //  gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
+    //  gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
 }
 
 function modifyPoints(points) {
@@ -156,21 +200,20 @@ function modifyPoints(points) {
 
 function triangle(a, b, c) {
     points.push(a, b, c);
-//    colors.push( baseColors[0] );
-//    colors.push( baseColors[1] );
-//    colors.push( baseColors[2] );
-    
-    colors.push( colorGenerator() );
-      colors.push( colorGenerator() );
-      colors.push( colorGenerator() );
+    //    colors.push( baseColors[0] );
+    //    colors.push( baseColors[1] );
+    //    colors.push( baseColors[2] );
+
+    colors.push(colorGenerator());
+    colors.push(colorGenerator());
+    colors.push(colorGenerator());
 }
 
-function colorGenerator(){
-    if (rand == 'NO'){
-     return vec3(parseInt(red)/255, parseInt(green)/255, parseInt(blue)/255);
-    }
-    else{
-    return vec3(Math.round(Math.random() * 255)/255, Math.round(Math.random() * 255)/255, Math.round(Math.random() * 255)/255);
+function colorGenerator() {
+    if (rand == 'NO') {
+        return vec3(parseInt(red) / 255, parseInt(green) / 255, parseInt(blue) / 255);
+    } else {
+        return vec3(Math.round(Math.random() * 255) / 255, Math.round(Math.random() * 255) / 255, Math.round(Math.random() * 255) / 255);
     }
 }
 
@@ -202,18 +245,18 @@ function divideTriangle(a, b, c, count) {
 
 function render() {
     ///
-    
+
     gl.clearColor(1.0, 1.0, 1.0, 1.0);
     var cBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW );
+    gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
 
-    var vColor = gl.getAttribLocation( program, "vColor" );
-    gl.vertexAttribPointer( vColor, 3, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vColor );
-    
+    var vColor = gl.getAttribLocation(program, "vColor");
+    gl.vertexAttribPointer(vColor, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vColor);
+
     ////
-     var bufferId = gl.createBuffer();
+    var bufferId = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
 
 
