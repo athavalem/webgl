@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html>
 
 <head>
@@ -8,11 +7,11 @@
 
 
     <script id="vertex-shader" type="x-shader/x-vertex">
-        attribute vec4 vPosition; void main() { gl_Position = vPosition; }
+        attribute vec4 vPosition; attribute vec3 vColor; varying vec4 color; void main() { gl_Position = vPosition; color = vec4(vColor, 1.0); }
     </script>
 
     <script id="fragment-shader" type="x-shader/x-fragment">
-        precision mediump float; void main() { gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 ); }
+        precision mediump float; varying vec4 color; void main() { gl_FragColor = color; }
     </script>
 
     <script type="text/javascript" src="../Common/webgl-utils.js"></script>
@@ -22,19 +21,80 @@
 </head>
 
 <body>
+    
+    <div style="float:center">
+    <h1 style="text-align: center">Coursera Webgl - Homework 1</h1>
+    
+    </div>
 
+    <div style="float:left" >
     <div>
-        Subdivisions 3
-        <input id="subdivisions" type="range" min="3" max="10" step="1" value="5" /> 10
+        <fieldset>
+            <legend style="color:blue;font-weight:bold;">Subdivisions</legend>
+
+            0
+            <input id="subdivisions" type="range" min="0" max="10" step="1" value="1" /> 10
+        </fieldset>
+    </div>
+    <br/>
+    <div>
+        <fieldset>
+            <legend style="color:blue;font-weight:bold;">Rotation</legend>
+
+            0
+            <input id="rotation" type="range" min="0" max="90" step="5" value="0" /> 90 Degrees.
+        </fieldset>
+    </div>
+
+    <br/>
+
+    <form>
+        <fieldset>
+            <legend style="color:blue;font-weight:bold;">Border/Fill</legend>
+            <input type="radio" name="radio1" onclick="changeBorderFill()" checked/>Do not Fill all triangles
+            <br />
+            <input type="radio" name="radio1" onclick="changeBorderFill()" />Fill all triangles
+        </fieldset>
+    </form>
+    <br/>
+    <div>
+        <fieldset>
+            <legend style="color:blue;font-weight:bold;">Colors</legend>
+
+            <table style="width:50%">
+                <tr>
+                    <td><font color="red">Red</font> </td>
+                    <td>
+                        <input id="red" type="range" min="0" max="255" step="10" value="0" /> 255.</td>
+                </tr>
+                <tr>
+                    <td><font color="green">Green</font> </td>
+                    <td>
+                        <input id="green" type="range" min="0" max="255" step="10" value="0" /> 255.</td>
+                </tr>
+                <tr>
+                    <td><font color="blue">Blue</font> </td>
+                    <td>
+                        <input id="blue" type="range" min="0" max="255" step="10" value="0" /> 255.</td>
+                </tr>
+                <tr>
+                    <td>Random Colors</td>
+
+                    <td>
+                        <input type="checkbox" id="rand" value="rand" />
+                    </td>
+                </tr>
+            </table>
+           
+        </fieldset>
     </div>
     
-      <div>
-        Rotation 0
-        <input id="rotation" type="range" min="0" max="10" step="1" value="0" /> 360
     </div>
-    <canvas id="gl-canvas" width="512" height="512">
+    <div style="float:left">
+    <canvas id="gl-canvas" width="600" height="600">
         Oops ... your browser doesn't support the HTML5 canvas element
     </canvas>
+    </div>
 </body>
 
 </html>
