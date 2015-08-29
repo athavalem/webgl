@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+
+  <script id="vertex-shader" type="x-shader/x-vertex">
+
+attribute vec4 vPosition;
+uniform mat4 u_xformMatrix; 
+attribute vec4 vNormal;
+varying vec3 N, L, E, L1;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+uniform vec4 lightPosition;
+uniform vec4 lightPosition1;
+uniform mat3 normalMatrix;
+
+void main()
+{
+    vec3 pos = (u_xformMatrix * modelViewMatrix * vPosition).xyz;
+    
+    // check for directional light
+    
+    if(lightPosition.w == 0.0) L = normalize(lightPosition.xyz);
+    else L = normalize( lightPosition.xyz - pos );
+    
+    if(lightPosition1.w == 0.0) L1 = normalize(lightPosition1.xyz);
+    else L1 = normalize( lightPosition1.xyz - pos );
+    
+    
+    E =  -normalize(pos);
+    N = normalize( normalMatrix*vNormal.xyz);
+
+    gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+    
+}
+
+</script>
+
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+
+precision mediump float;
+
+uniform vec4 ambientProduct;
+uniform vec4 diffuseProduct;
+uniform vec4 specularProduct;
+uniform float shininess;
+uniform float useDiffuse;
+uniform float useSpecular;
+varying vec3 N, L, E, L1;
+
+void main()
+{    
+    vec4 fColor;
+    
+    vec3 H = normalize( L + E );
+    
+    vec4 ambient = ambientProduct;
+
+    float Kd = max( dot(L1, N), 0.0 );
+      
+    vec4  diffuse = Kd*diffuseProduct;
+
+    float Ks = pow( max(dot(N, H), 0.0), shininess );
+    
+    vec4  specular = Ks * specularProduct;
+    
+    if( dot(L, N) <= 0.0 ) specular = vec4(0.0, 0.0, 0.0, 1.0);
+
+    fColor = ambient ;
+    
+    //fColor = fcolor + diffuse;
+    
+    if (useDiffuse > 0.5 && useSpecular > 0.5)
+    {fColor = ambient + diffuse + specular;}
+  else
+    if ( useDiffuse > 0.5){ fColor = ambient + diffuse;}
+    else
+     if ( useSpecular > 0.5){ fColor = ambient + specular;}
+    
+    
+ 
+ 
+   
+    fColor.a = 1.0;
+
+    gl_FragColor = fColor;
+}
+
+</script>
+
+
+    <script type="text/javascript" src="../Common/webgl-utils.js"></script>
+    <script type="text/javascript" src="../Common/initShaders.js"></script>
+    <script type="text/javascript" src="../Common/flatten.js"></script>
+     <script type="text/javascript" src="../Common/MV.js"></script>
+    <script type="text/javascript" src="hw_4.js"></script>
+  
+    
+    <style type="text/css">
+    button {
+        background-color: #d6d6d6;
+        border: solid;
+        height: 40px;
+        padding: 5px 15px;
+        color: #000000;
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 10px;
+        margin-right: 10px;
+    }
+    
+    button:active {
+       border: none;
+    }
+    
+    button:focus {
+        outline: 0;
+    }
+</style>
+    
+    
+</head>
+
+<body>
+    <div style="float:center">
+        <h1 style="text-align: center">Coursera Webgl - Homework 4</h1>
+
+    </div>
+    <div style="float:left">
+    <form>
+        <fieldset>
+            <legend style="color:blue;font-weight:bold;">Shapes</legend>
+            <input type="radio" name="radio1" onclick="changeShape()" checked/>Cylinder
+            
+            <input type="radio" name="radio1" onclick="changeShape()" />Cone
+            
+            <input type="radio" name="radio1" onclick="changeShape()" />Sphere
+        </fieldset>
+       </form>
+        <div>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Colors</legend>
+            <form>
+            <input type="radio" name="radio2" onclick="changeLight()" checked/>Ambient
+            
+            <input type="radio" name="radio2" onclick="changeLight()" />Diffuse
+            
+            <input type="radio" name="radio2" onclick="changeLight()" />Specular
+       
+             </form>
+            
+                <table>
+                    <tr>
+                        <td><font color="red">Red</font> </td>
+                        <td>
+                            0
+                            <input id="red" type="range" min="0" max="255" step="10" value="0" /> 255.</td>
+                    </tr>
+                    <tr>
+                        <td><font color="green">Green</font> </td>
+                        <td>
+                            0
+                            <input id="green" type="range" min="0" max="255" step="10" value="0" /> 255.</td>
+                    </tr>
+                    <tr>
+                        <td><font color="blue">Blue</font> </td>
+                        <td>
+                            0
+                            <input id="blue" type="range" min="0" max="255" step="10" value="0" /> 255.</td>
+                    </tr>
+
+                </table>
+
+            </fieldset>
+        </div>
+
+         <div>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Specular Light</legend>
+            <form>
+            
+            <input type="radio" name="radio3" onclick="checkSpecularSwitch()"  checked/>ON
+            
+            <input type="radio" name="radio3" onclick="checkSpecularSwitch()" />OFF
+       
+             </form>
+            
+                <table>
+                    <tr>
+                        <td><font color="red">X</font> </td>
+                        <td>
+                            -1
+                            <input id="xSpec" type="range" min="-1" max="1" step="0.2" value="0" /> 1.</td>
+                    </tr>
+                    <tr>
+                        <td><font color="green">Y</font> </td>
+                        <td>
+                            -1
+                            <input id="ySpec" type="range" min="-1" max="1" step="0.2" value="0" /> 1.</td>
+                    </tr>
+                    <tr>
+                        <td><font color="blue">Z</font> </td>
+                        <td>
+                            -1
+                            <input id="zSpec" type="range" min="-1" max="1" step="0.2" value="0" /> 1.</td>
+                    </tr>
+
+                </table>
+
+            </fieldset>
+        </div>
+
+        <div>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Diffuse Light</legend>
+            <form>
+            
+            <input type="radio" name="radio4" onclick="checkDiffuseSwitch()"  checked/>ON
+            
+            <input type="radio" name="radio4" onclick="checkDiffuseSwitch()" />OFF
+       
+             </form>
+            
+                <table>
+                    <tr>
+                        <td><font color="red">X</font> </td>
+                        <td>
+                            -1
+                            <input id="xDif" type="range" min="-1" max="1" step="0.2" value="0" /> 1.</td>
+                    </tr>
+                    <tr>
+                        <td><font color="green">Y</font> </td>
+                        <td>
+                            -1
+                            <input id="yDif" type="range" min="-1" max="1" step="0.2" value="0" /> 1.</td>
+                    </tr>
+                    <tr>
+                        <td><font color="blue">Z</font> </td>
+                        <td>
+                            -1
+                            <input id="zDif" type="range" min="-1" max="1" step="0.2" value="0" /> 1.</td>
+                    </tr>
+
+                </table>
+
+            </fieldset>
+        </div>
+        
+        <div>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;"> Object Size and Location</legend>
+                
+                <table>
+                     <tr>
+                        <td><font color="black">Radius</font> </td>
+                        <td>
+                 &nbsp; 1
+                            <input id="radius" type="range" min="1" max="2" step="0.2" value="1" /> 2  </td>
+                    </tr>
+                    <tr>
+                        <td><font color="red">X</font> </td>
+                        <td>
+                            -1
+                            <input id="xLoc" type="range" min="-1" max="1" step="0.2" value="0" /> 1.</td>
+                    </tr>
+                    <tr>
+                        <td><font color="green">Y</font> </td>
+                        <td>
+                            -1
+                            <input id="yLoc" type="range" min="-1" max="1" step="0.2" value="0" /> 1.</td>
+                    </tr>
+                    <tr>
+                        <td><font color="blue">Z</font> </td>
+                        <td>
+                            -1
+                            <input id="zLoc" type="range" min="-1" max="1" step="0.2" value="0" /> 1.</td>
+                    </tr>
+
+                </table>
+
+                
+            </fieldset>
+        </div>
+
+         <div>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Eye Location</legend>
+
+                <table>
+                    <tr>
+                        <td><font color="red">Theta</font> </td>
+                        <td>
+
+                0
+                <input id="theta" type="range" min="0" max="360" step="20" value="0" /> 360
+                    </tr>
+                    <tr>
+                        <td><font color="red">PHI</font> </td>
+                        <td>
+                0
+                <input id="phi" type="range" min="0" max="360" step="20" value="0" /> 360
+
+                    </tr>
+
+                </table>
+            </fieldset>
+        </div>
+        
+        <div>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Clear Canvas</legend>
+
+
+                <button id="clear">Clear Canvas</button>
+            </fieldset>
+        </div>
+
+    </div>
+    <div style="float:left">
+        <canvas id="gl-canvas" width="600" height="600">
+            Oops ... your browser doesn't support the HTML5 canvas element
+        </canvas>
+
+    </div>
+
+
+</body>
+
+</html>
