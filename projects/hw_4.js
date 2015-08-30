@@ -33,6 +33,7 @@ var diffuseLightSwitch = 'ON';
 var speclarLightSwitch = 'ON';
 
 
+
 var radius = 1.0;
 
 var pointsArray = [];
@@ -48,9 +49,9 @@ var xSpec = 1;
 var ySpec = 1;
 var zSpec = 1;
 
-var xDif = 0.5;
-var yDif = 0.5;
-var zDif = 0.5;
+var xDif = 1;
+var yDif = 1;
+var zDif = 1;
 
 var xLoc = 0.0;
 var yLoc = 0.0;
@@ -61,10 +62,12 @@ var right = 3.0;
 var ytop = 3.0;
 var bottom = -3.0;
 
+
+
 var lightPosition = vec4(1.0, 1.0, 1.0, 0.0);
-var lightPosition1 = vec4(0.5, 0.5, 0.5, 0.0);
+var lightPosition1 = vec4(1.0, 1.0, 1.0, 0.0);
 var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
-var lightDiffuse = vec4(1.0, 1.0, 0.0, 1.0);
+var lightDiffuse = vec4(1.0 , 1.0, 0.0, 1.0);
 var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 
 var materialAmbient = vec4(1.0, 0.0, 1.0, 1.0);
@@ -122,14 +125,23 @@ function setupShape() {
         sphere();
     }
 
-     u_xformMatrix = gl.getUniformLocation(program, 'u_xformMatrix');
+
+
+    u_xformMatrix = gl.getUniformLocation(program, 'u_xformMatrix');
     xformMatrix[12] = xLoc;
     xformMatrix[13] = yLoc;
     gl.uniformMatrix4fv(u_xformMatrix, false, xformMatrix);
-
+    
+    var specDist = Math.sqrt(lightPosition[0] * lightPosition[0] + lightPosition[1] * lightPosition[1] + lightPosition[2] * lightPosition[2]);
+    var difDist = Math.sqrt(lightPosition1[0] * lightPosition1[0] + lightPosition1[1] * lightPosition1[1] + lightPosition1[2] * lightPosition1[2]);
+    var lightDiffuseA = vec4 (lightDiffuse[0] / difDist, lightDiffuse[1] / difDist, lightDiffuse[2] / difDist, lightDiffuse[3]);
+    var lightSpecA = vec4 (lightSpecular[0] / specDist, lightSpecular[1] / specDist, lightSpecular[2] / specDist, lightSpecular[3]);
     var ambientProduct = mult(lightAmbient, materialAmbient);
-    var diffuseProduct = mult(lightDiffuse, materialDiffuse);
-    var specularProduct = mult(lightSpecular, materialSpecular);
+    //var diffuseProduct = mult(lightDiffuse, materialDiffuse);
+    //var specularProduct = mult(lightSpecular, materialSpecular);
+    
+     var diffuseProduct = mult(lightDiffuseA, materialDiffuse);
+    var specularProduct = mult(lightSpecA, materialSpecular);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW);
@@ -197,17 +209,29 @@ function changeShape() {
 
 function changeLight() {
     if (document.forms[1].radio2[0].checked == true) {
-        lightType = 'AMBIENT'
+        lightType = 'AMBIENT';
+        document.getElementById("red").value = 255 * lightAmbient[0];
+        document.getElementById("green").value = 255 * lightAmbient[1];
+        document.getElementById("blue").value = 255 * lightAmbient[2];
+
     }
 
     if (document.forms[1].radio2[1].checked == true) {
-        lightType = 'DIFFUSE'
+        lightType = 'DIFFUSE';
+        document.getElementById("red").value = lightDiffuse[0] * 255 ;
+        document.getElementById("green").value = lightDiffuse[1] * 255 ;
+        document.getElementById("blue").value = lightDiffuse[2] * 255 ;
+
     }
 
     if (document.forms[1].radio2[2].checked == true) {
-        lightType = 'SPECULAR'
+        lightType = 'SPECULAR';
+        document.getElementById("red").value = 255 * lightSpecular[0] ;
+        document.getElementById("green").value = 255 * lightSpecular[1] ;
+        document.getElementById("blue").value = 255 * lightSpecular[2] ;
+
     }
-    setupColors();
+    //setupColors();
 
 }
 
@@ -232,9 +256,7 @@ function setUpDiffuseLightLocation() {
     var y = parseFloat(yDif);
     var z = parseFloat(zDif);
     lightPosition1 = vec4(x, y, z, 0.0);
-
-
-
+ 
     setupShape();
 
 }
@@ -257,7 +279,6 @@ function setUpSpecularLightLocation() {
     var y = parseFloat(ySpec);
     var z = parseFloat(zSpec);
     lightPosition = vec4(x, y, z, 0.0);
-
     setupShape();
 
 }
@@ -275,11 +296,13 @@ function setupColors() {
     }
 
     if (lightType == 'DIFFUSE') {
-        lightDiffuse = colorVec4;
+               
+        lightDiffuse = vec4(rval, gval, bval, 1.0);
     }
 
     if (lightType == 'SPECULAR') {
-        lightSpecular = colorVec4;
+        
+        lightSpecular = vec4(rval, gval, bval, 1.0);
     }
 
     setupShape();
@@ -295,6 +318,14 @@ function setupControls() {
     document.getElementById("blue").value = 255 * 0.2;
     document.getElementById("green").value = 255 * 0.2;
 
+    document.getElementById("xSpec").value = lightPosition[0];
+    document.getElementById("ySpec").value = lightPosition[1];
+    document.getElementById("zSpec").value = lightPosition[2];
+    
+     document.getElementById("xDif").value = lightPosition1[0];
+    document.getElementById("yDif").value = lightPosition1[1];
+    document.getElementById("zDif").value = lightPosition1[2];
+        
     red = 255 * 0.2;
     blue = 255 * 0.2;
     green = 255 * 0.2;
@@ -302,9 +333,9 @@ function setupControls() {
     ySpec = 1.0;
     zSpec = 1.0;
 
-    xDif = 0.5;
-    yDif = 0.5;
-    zDif = 0.5;
+    xDif = 1.0;
+    yDif = 1.0;
+    zDif = 1.0;
     document.getElementById("radius").value = 1.0;
     document.getElementById("theta").value = 0.0;
     document.getElementById("phi").value = 0.0;
@@ -572,7 +603,7 @@ function cone() {
 
     var cntr = 0;
     var r = radius;
-    var l =  r;
+    var l = r;
     var x = r;
     var y;
 
@@ -594,13 +625,13 @@ function cone() {
     x = -r;
     while (x < r) {
 
-        y = -0.5 * Math.sqrt(1.0 - (x * x) / (r * r)) -r;
+        y = -0.5 * Math.sqrt(1.0 - (x * x) / (r * r)) - r;
         pointsArray.push([x, y, 0.0, 1.0]);
         normalsArray.push([x, y, 1.0, 0.0]);
         pointsArray.push([0, l, 0.0, 1.0]);
         normalsArray.push([0, l, 1.0, 0.0]);
         x = x + 0.005;
-        y = -0.5 * Math.sqrt(1.0 - (x * x) / (r * r)) -r ;
+        y = -0.5 * Math.sqrt(1.0 - (x * x) / (r * r)) - r;
         pointsArray.push([x, y, 0.0, 1.0]);
         normalsArray.push([x, y, 1.0, 0.0]);
         x = x + 0.005;
