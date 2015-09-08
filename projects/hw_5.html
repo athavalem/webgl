@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+
+    
+<script id="fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+
+    varying vec2 vTextureCoord;
+    varying vec3 vLightWeighting;
+
+    uniform sampler2D sampler;
+
+    void main(void) {
+        vec4 textureColor = texture2D(sampler, vec2(vTextureCoord.s, vTextureCoord.t));
+        gl_FragColor = vec4(textureColor.rgb * vLightWeighting, textureColor.a);
+    }
+</script>
+    
+<script id="vertex-shader" type="x-shader/x-vertex">
+    attribute vec3 vertexPosition;
+    attribute vec3 vertexNormal;
+    attribute vec2 textureCoord;
+
+    uniform mat4 mVMatrix;
+    uniform mat4 pMatrix;
+    uniform mat3 nMatrix;
+
+    uniform vec3 ambientColor;
+
+    uniform vec3 lightingDirection;
+    uniform vec3 directionalColor;
+
+    varying vec2 vTextureCoord;
+    varying vec3 vLightWeighting;
+
+    void main(void) {
+        gl_Position = pMatrix * mVMatrix * vec4(vertexPosition, 1.0);
+        vTextureCoord = textureCoord;
+
+        vec3 transformedNormal = nMatrix * vertexNormal;
+        float directionalLightWeighting = max(dot(transformedNormal, lightingDirection), 0.0);
+        vLightWeighting = ambientColor + directionalColor * directionalLightWeighting;
+       
+    }
+</script>
+
+
+
+    <script type="text/javascript" src="../Common/webgl-utils.js"></script>
+    <script type="text/javascript" src="../Common/initShaders.js"></script>
+    <script type="text/javascript" src="../Common/flatten.js"></script>
+    <script type="text/javascript" src="glMatrix-min.js"></script>
+    <script type="text/javascript" src="hw_5.js"></script>
+    
+    
+<style type="text/css">
+    button {
+        background-color: #d6d6d6;
+        border: solid;
+        height: 40px;
+        padding: 5px 15px;
+        color: #000000;
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 10px;
+        margin-right: 10px;
+    }
+    
+    button:active {
+       border: none;
+    }
+    
+    button:focus {
+        outline: 0;
+    }
+</style>
+    
+<style type="text/css">
+    .fieldset-auto-width {
+         display: inline-block;
+}
+</style>
+
+    
+</head>
+
+<body>
+    
+ <div style="float:center">
+        <h1 style="text-align: center">Coursera Webgl - Homework 5</h1>
+
+    </div>
+    <div style="float:left">
+    <form>
+        <fieldset>
+            <legend style="color:blue;font-weight:bold;">Textures</legend>
+            <input type="radio" name="radio1" onclick="changeTexture()" checked/>Checkered Cube
+            <br/>
+            <input type="radio" name="radio1" onclick="changeTexture()" />Flower
+            <br/>
+            <input type="radio" name="radio1" onclick="changeTexture()" />Gravel
+            <br/>
+            <input type="radio" name="radio1" onclick="changeTexture()" />SA2011(From Lectures)
+        </fieldset>
+       </form>
+
+        
+         <form>
+        <fieldset>
+            <legend style="color:blue;font-weight:bold;">Textures Coordinates Mapping Methods</legend>
+            <input type="radio" name="radio1" onclick="changeMappingMethod()" checked/>Normal
+            <br/>
+            <input type="radio" name="radio1" onclick="changeMappingMethod()" />Planar
+            <br/>
+            
+        </fieldset>
+       </form>
+        
+         <div>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Z Axis Location</legend>
+
+                <table>
+                        
+                <tr>
+                <td>
+                1
+                <input id="zAxis" type="range" min="1" max="20" step="1" value="5" /> 20
+                    </td>
+                </tr>
+
+                </table>
+            </fieldset>
+        </div>
+        
+        
+        <div>
+            <fieldset>
+                <legend style="color:blue;font-weight:bold;">Rotations</legend>
+
+                <table>
+                <tr>
+              
+                <td>
+                 X Axis Speed -20
+                <input id="xSpeed" type="range" min="-50" max="50" step="2" value="5" /> 20
+                    </td>
+                </tr>
+
+               <tr>
+                <td>
+                 Y Axis Speed -20
+                <input id="ySpeed" type="range" min="-50" max="50" step="2" value="5" /> 20
+                    </td>
+                </tr>
+                </table>
+            </fieldset>
+        </div>
+        
+        
+        </div>
+
+    </div>
+    <div style="float:left">
+        <canvas id="gl-canvas" width="600" height="600">
+            Oops ... your browser doesn't support the HTML5 canvas element
+        </canvas>
+
+    </div>
+
+
+
+</body>
+
+</html>
